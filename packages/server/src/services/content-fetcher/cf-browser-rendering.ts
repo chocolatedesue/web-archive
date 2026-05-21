@@ -1,6 +1,6 @@
-import type { Bindings } from '~/constants/binding'
 import type { ContentFetcher, FetchOptions, FetchResult } from './types'
 import { FetcherError } from './types'
+import type { Bindings } from '~/constants/binding'
 
 /**
  * STUB. Phase 5 will implement this to call the Cloudflare Browser Rendering
@@ -13,7 +13,6 @@ export class CfBrowserRenderingFetcher implements ContentFetcher {
 
   constructor(private readonly env: Bindings) {}
 
-  // eslint-disable-next-line unused-imports/no-unused-vars
   async fetch(_url: string, _options?: FetchOptions): Promise<FetchResult> {
     void this.env
     throw new FetcherError(

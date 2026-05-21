@@ -1,7 +1,7 @@
 import type { AIEnhancerConfig } from '@web-archive/shared/types'
-import { SUMMARY_DEFAULT_MAX_CHARS } from '~/constants/url-archiver'
 import type { AIEnhancer, SummaryInput } from './types'
 import { AIEnhancerError } from './types'
+import { SUMMARY_DEFAULT_MAX_CHARS } from '~/constants/url-archiver'
 
 type OpenAICfg = Extract<AIEnhancerConfig, { type: 'openai' }>
 

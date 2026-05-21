@@ -39,7 +39,7 @@ export interface FetchResult {
 
 export interface ContentFetcher {
   readonly name: Exclude<FetcherProviderName, 'auto'>
-  fetch(url: string, options?: FetchOptions): Promise<FetchResult>
+  fetch: (url: string, options?: FetchOptions) => Promise<FetchResult>
 }
 
 // ─── AI enhancer ────────────────────────────────────────────────────
@@ -49,19 +49,19 @@ export type AIEnhancerProviderName = 'noop' | 'cloudflare' | 'openai'
 export type AIEnhancerConfig =
   | { type: 'noop' }
   | {
-      type: 'cloudflare'
-      model: string
-      language?: 'en' | 'zh'
-      maxChars?: number
-    }
+    type: 'cloudflare'
+    model: string
+    language?: 'en' | 'zh'
+    maxChars?: number
+  }
   | {
-      type: 'openai'
-      model: string
-      apiKey: string
-      apiUrl: string
-      language?: 'en' | 'zh'
-      maxChars?: number
-    }
+    type: 'openai'
+    model: string
+    apiKey: string
+    apiUrl: string
+    language?: 'en' | 'zh'
+    maxChars?: number
+  }
 
 export interface SummaryInput {
   title: string
@@ -74,9 +74,9 @@ export interface SummaryInput {
 export interface AIEnhancer {
   readonly name: AIEnhancerProviderName
   /** Returns a short description suitable for `pageDesc` (≈ 200 chars). */
-  summarize(input: SummaryInput): Promise<string>
+  summarize: (input: SummaryInput) => Promise<string>
   /** Optional. If undefined, the orchestrator falls back to no auto-tags. */
-  suggestTags?(input: SummaryInput): Promise<string[]>
+  suggestTags?: (input: SummaryInput) => Promise<string[]>
 }
 
 // ─── URL archiver config (persisted in `stores` table) ──────────────
@@ -116,12 +116,12 @@ export interface ArchiveByUrlInput {
 
 export type ArchiveByUrlOutput =
   | {
-      status: 'created'
-      pageId: number
-      title: string
-      pageDesc: string
-      fetcherUsed: string
-    }
+    status: 'created'
+    pageId: number
+    title: string
+    pageDesc: string
+    fetcherUsed: string
+  }
   | { status: 'duplicate', pageId: number }
   | { status: 'error', code: string, message: string }
 

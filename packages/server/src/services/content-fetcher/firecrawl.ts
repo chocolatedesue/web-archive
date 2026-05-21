@@ -22,7 +22,7 @@ interface FirecrawlScrapeResponse {
   data?: {
     markdown?: string
     html?: string
-    screenshot?: string       // base64 data-url "data:image/png;base64,..."
+    screenshot?: string // base64 data-url "data:image/png;base64,..."
     metadata?: {
       title?: string
       description?: string

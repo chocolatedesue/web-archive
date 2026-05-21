@@ -1,11 +1,11 @@
 import type { FetcherProviderName, UrlArchiverConfig } from '@web-archive/shared/types'
-import type { Bindings } from '~/constants/binding'
 import { CfBrowserRenderingFetcher } from './cf-browser-rendering'
 import { FirecrawlFetcher } from './firecrawl'
 import { JinaReaderFetcher } from './jina-reader'
 import { NoopFetcher } from './noop'
 import { RawFetchFetcher } from './raw-fetch'
 import type { ContentFetcher } from './types'
+import type { Bindings } from '~/constants/binding'
 
 /**
  * Resolve the request-time fetcher.

@@ -27,7 +27,7 @@ interface JinaJsonResponse {
     title?: string
     description?: string
     url?: string
-    content?: string   // markdown body
+    content?: string // markdown body
   }
 }
 
@@ -56,7 +56,7 @@ export class JinaReaderFetcher implements ContentFetcher {
       'X-With-Images-Summary': 'false',
     }
     if (this.apiKey) {
-      headers['Authorization'] = `Bearer ${this.apiKey}`
+      headers.Authorization = `Bearer ${this.apiKey}`
     }
 
     const controller = new AbortController()
@@ -163,17 +163,17 @@ export class JinaReaderFetcher implements ContentFetcher {
 //   Markdown content ...
 
 function extractJinaPlainTitle(text: string): string | undefined {
-  const m = text.match(/^Title:\s*(.+)$/m)
+  const m = text.match(/^Title:([^\r\n]+)$/m)
   return m?.[1]?.trim()
 }
 
 function extractJinaPlainDescription(text: string): string | undefined {
-  const m = text.match(/^Description:\s*(.+)$/m)
+  const m = text.match(/^Description:([^\r\n]+)$/m)
   return m?.[1]?.trim()
 }
 
 function extractJinaPlainUrl(text: string): string | undefined {
-  const m = text.match(/^URL Source:\s*(.+)$/m)
+  const m = text.match(/^URL Source:([^\r\n]+)$/m)
   return m?.[1]?.trim()
 }
 

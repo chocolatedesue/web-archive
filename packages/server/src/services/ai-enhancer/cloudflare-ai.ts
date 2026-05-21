@@ -1,8 +1,8 @@
 import type { AIEnhancerConfig } from '@web-archive/shared/types'
-import type { Bindings } from '~/constants/binding'
-import { SUMMARY_DEFAULT_MAX_CHARS } from '~/constants/url-archiver'
 import type { AIEnhancer, SummaryInput } from './types'
 import { AIEnhancerError } from './types'
+import type { Bindings } from '~/constants/binding'
+import { SUMMARY_DEFAULT_MAX_CHARS } from '~/constants/url-archiver'
 
 type CloudflareAICfg = Extract<AIEnhancerConfig, { type: 'cloudflare' }>
 

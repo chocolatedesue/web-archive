@@ -29,10 +29,10 @@ const BLOCKED_HOSTNAME_PATTERNS: RegExp[] = [
   /^10\.\d+\.\d+\.\d+$/,
   /^172\.(1[6-9]|2\d|3[01])\.\d+\.\d+$/,
   /^192\.168\.\d+\.\d+$/,
-  /^169\.254\.\d+\.\d+$/,      // link-local
-  /^::1$/,                      // IPv6 loopback
-  /^fc[0-9a-f]{2}:/i,          // IPv6 ULA
-  /^fe80:/i,                    // IPv6 link-local
+  /^169\.254\.\d+\.\d+$/, // link-local
+  /^::1$/, // IPv6 loopback
+  /^fc[0-9a-f]{2}:/i, // IPv6 ULA
+  /^fe80:/i, // IPv6 link-local
 ]
 
 function assertNotPrivate(url: URL): void {
@@ -266,7 +266,7 @@ function decodeHtmlEntities(s: string): string {
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
+    .replace(/&#39;/g, '\'')
     .replace(/&nbsp;/g, ' ')
     .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
     .replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCharCode(Number.parseInt(h, 16)))

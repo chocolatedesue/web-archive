@@ -1,9 +1,9 @@
 import type { AIEnhancerConfig } from '@web-archive/shared/types'
-import type { Bindings } from '~/constants/binding'
 import { CloudflareAIEnhancer } from './cloudflare-ai'
 import { NoopEnhancer } from './noop'
 import { OpenAICompatibleEnhancer } from './openai-compatible'
 import type { AIEnhancer } from './types'
+import type { Bindings } from '~/constants/binding'
 
 /**
  * Resolve the AI enhancer for the current request based on the persisted

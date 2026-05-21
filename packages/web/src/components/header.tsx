@@ -1,10 +1,9 @@
 import { Button } from '@web-archive/shared/components/button'
 import { Input } from '@web-archive/shared/components/input'
 import { Link2, Search } from 'lucide-react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useOutletContext } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
-import { useOutletContext } from 'react-router-dom'
 import ViewToggle from './view-toggle'
 import ArchiveByUrlDialog from './archive-by-url-dialog'
 

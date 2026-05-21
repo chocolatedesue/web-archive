@@ -12,11 +12,11 @@
     "hono": "^4.4.8"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240529.0",
+    "@cloudflare/workers-types": "^4.20260520.1",
     "@hono/vite-cloudflare-pages": "^0.4.1",
     "@hono/vite-dev-server": "^0.12.1",
     "@types/bcryptjs": "^2.4.6",
     "@web-archive/shared": "workspace:*",
-    "wrangler": "^3.57.2"
+    "wrangler": "^4.0.0"
   }
 }

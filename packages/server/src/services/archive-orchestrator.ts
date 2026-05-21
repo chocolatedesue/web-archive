@@ -5,6 +5,10 @@ import type {
   PreviewUrlInput,
   PreviewUrlOutput,
 } from '@web-archive/shared/types'
+import { getAIEnhancer } from './ai-enhancer'
+import { AIEnhancerError } from './ai-enhancer/types'
+import { getContentFetcher } from './content-fetcher'
+import { FetcherError } from './content-fetcher/types'
 import type { Bindings } from '~/constants/binding'
 import {
   DEFAULT_FETCHER_TIMEOUT_MS,
@@ -17,10 +21,6 @@ import { getUrlArchiverConfig } from '~/model/store'
 import { insertPage, queryPageByUrl } from '~/model/page'
 import { updateBindPageByTagName } from '~/model/tag'
 import { saveFileToBucket } from '~/utils/file'
-import { getAIEnhancer } from './ai-enhancer'
-import { AIEnhancerError } from './ai-enhancer/types'
-import { getContentFetcher } from './content-fetcher'
-import { FetcherError } from './content-fetcher/types'
 
 export class OrchestratorError extends Error {
   constructor(

@@ -7,7 +7,6 @@ import type { AIEnhancer, SummaryInput } from './types'
 export class NoopEnhancer implements AIEnhancer {
   readonly name = 'noop' as const
 
-  // eslint-disable-next-line unused-imports/no-unused-vars
   async summarize(_input: SummaryInput): Promise<string> {
     return ''
   }
