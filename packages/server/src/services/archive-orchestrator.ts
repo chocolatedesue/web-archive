@@ -110,7 +110,7 @@ export async function previewUrl(
   const cfg = await getUrlArchiverConfig(env.DB)
   const fetcher = getContentFetcher(input.fetcherProvider, env, cfg)
 
-  const fetched = await withTimeout(
+  const fetched: FetchResult = await withTimeout(
     fetcher.fetch(url, { timeoutMs: DEFAULT_FETCHER_TIMEOUT_MS }),
     DEFAULT_FETCHER_TIMEOUT_MS + 1000,
   ).catch((e) => {
@@ -259,7 +259,7 @@ export async function archiveByUrl(
     try {
       await updateBindPageByTagName(
         env.DB,
-        bindTags.map(tagName => ({ tagName, pageIds: [pageId] })),
+        bindTags.map((tagName: string) => ({ tagName, pageIds: [pageId] })),
         [],
       )
     }

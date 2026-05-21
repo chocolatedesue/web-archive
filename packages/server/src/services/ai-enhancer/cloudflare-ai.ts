@@ -74,11 +74,8 @@ export class CloudflareAIEnhancer implements AIEnhancer {
 
     let res: unknown
     try {
-      res = await this.env.AI.run(
-        // @ts-expect-error dynamic model name, same pattern as tags.ts
-        this.model,
-        { messages },
-      )
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      res = await (this.env.AI as any).run(this.model, { messages })
     }
     catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)
@@ -110,11 +107,8 @@ export class CloudflareAIEnhancer implements AIEnhancer {
 
     let res: unknown
     try {
-      res = await this.env.AI.run(
-        // @ts-expect-error dynamic model name
-        this.model,
-        { messages },
-      )
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      res = await (this.env.AI as any).run(this.model, { messages })
     }
     catch (e: unknown) {
       const msg = e instanceof Error ? e.message : String(e)

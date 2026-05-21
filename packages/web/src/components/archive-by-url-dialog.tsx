@@ -6,6 +6,7 @@ import { Switch } from '@web-archive/shared/components/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@web-archive/shared/components/select'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@web-archive/shared/components/form'
 import { useForm } from 'react-hook-form'
+import type { ControllerRenderProps } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useRequest } from 'ahooks'
@@ -13,7 +14,10 @@ import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { Link2, Loader2, Search } from 'lucide-react'
+import type React from 'react'
+import type { Folder } from '@web-archive/shared/types'
 import { getAllFolder } from '~/data/folder'
+import type { ArchiveByUrlResult } from '~/data/page'
 import { archiveByUrl, previewUrl } from '~/data/page'
 
 interface ArchiveByUrlDialogProps {
@@ -67,7 +71,7 @@ function ArchiveByUrlDialog({ open, onOpenChange, onSuccess }: ArchiveByUrlDialo
 
   const { run: runPreview, loading: previewing } = useRequest(previewUrl, {
     manual: true,
-    onSuccess: (data) => {
+    onSuccess: (data: Awaited<ReturnType<typeof previewUrl>>) => {
       form.setValue('titleOverride', data.title ?? '')
       form.setValue('pageDescOverride', data.metaDescription ?? '')
       setPreviewed(true)
@@ -90,7 +94,7 @@ function ArchiveByUrlDialog({ open, onOpenChange, onSuccess }: ArchiveByUrlDialo
   // ── submit ────────────────────────────────────────────────────────
   const { run: runArchive, loading: archiving } = useRequest(archiveByUrl, {
     manual: true,
-    onSuccess: (data) => {
+    onSuccess: (data: ArchiveByUrlResult) => {
       if (data.status === 'duplicate') {
         toast.success(t('url-archive-duplicate', { pageId: data.pageId }))
       }
@@ -133,7 +137,7 @@ function ArchiveByUrlDialog({ open, onOpenChange, onSuccess }: ArchiveByUrlDialo
             <FormField
               control={form.control}
               name="url"
-              render={({ field }) => (
+              render={({ field }: { field: ControllerRenderProps<FormValues, 'url'> }) => (
                 <FormItem>
                   <FormLabel>{t('url')}</FormLabel>
                   <div className="flex gap-2">
@@ -142,7 +146,7 @@ function ArchiveByUrlDialog({ open, onOpenChange, onSuccess }: ArchiveByUrlDialo
                         placeholder="https://example.com/article"
                         autoFocus
                         {...field}
-                        onChange={(e) => {
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                           field.onChange(e)
                           setPreviewed(false)
                         }}
@@ -169,7 +173,7 @@ function ArchiveByUrlDialog({ open, onOpenChange, onSuccess }: ArchiveByUrlDialo
             <FormField
               control={form.control}
               name="titleOverride"
-              render={({ field }) => (
+              render={({ field }: { field: ControllerRenderProps<FormValues, 'titleOverride'> }) => (
                 <FormItem>
                   <FormLabel>{t('title')}</FormLabel>
                   <FormControl>
@@ -184,7 +188,7 @@ function ArchiveByUrlDialog({ open, onOpenChange, onSuccess }: ArchiveByUrlDialo
             <FormField
               control={form.control}
               name="pageDescOverride"
-              render={({ field }) => (
+              render={({ field }: { field: ControllerRenderProps<FormValues, 'pageDescOverride'> }) => (
                 <FormItem>
                   <FormLabel>{t('description')}</FormLabel>
                   <FormControl>
@@ -203,7 +207,7 @@ function ArchiveByUrlDialog({ open, onOpenChange, onSuccess }: ArchiveByUrlDialo
             <FormField
               control={form.control}
               name="folderId"
-              render={({ field }) => (
+              render={({ field }: { field: ControllerRenderProps<FormValues, 'folderId'> }) => (
                 <FormItem>
                   <FormLabel>{t('folder')}</FormLabel>
                   <FormControl>
@@ -212,7 +216,7 @@ function ArchiveByUrlDialog({ open, onOpenChange, onSuccess }: ArchiveByUrlDialo
                         <SelectValue placeholder={t('select-a-folder')} />
                       </SelectTrigger>
                       <SelectContent>
-                        {folders?.map(folder => (
+                        {folders?.map((folder: Folder) => (
                           <SelectItem key={folder.id} value={String(folder.id)}>
                             {folder.name}
                           </SelectItem>
@@ -229,7 +233,7 @@ function ArchiveByUrlDialog({ open, onOpenChange, onSuccess }: ArchiveByUrlDialo
             <FormField
               control={form.control}
               name="isShowcased"
-              render={({ field }) => (
+              render={({ field }: { field: ControllerRenderProps<FormValues, 'isShowcased'> }) => (
                 <FormItem className="flex items-center gap-3">
                   <FormLabel className="mt-0">{t('showcased')}</FormLabel>
                   <FormControl>

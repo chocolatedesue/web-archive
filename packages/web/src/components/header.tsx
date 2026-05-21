@@ -4,6 +4,7 @@ import { Link2, Search } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
+import type React from 'react'
 import { useOutletContext } from 'react-router-dom'
 import ViewToggle from './view-toggle'
 import ArchiveByUrlDialog from './archive-by-url-dialog'
@@ -61,8 +62,8 @@ function SearchBar({ className, keyword, setKeyword, handleSearch }: SearchBarPr
               placeholder={t('search-placeholder')}
               value={keyword}
               showRing={false}
-              onChange={e => setKeyword(e.target.value)}
-              onKeyUp={(e) => {
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setKeyword(e.target.value)}
+              onKeyUp={(e: React.KeyboardEvent<HTMLInputElement>) => {
                 if (e.key === 'Enter') {
                   handleSearch()
                 }

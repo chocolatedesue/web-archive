@@ -19,8 +19,6 @@ export function getAIEnhancer(cfg: AIEnhancerConfig, env: Bindings): AIEnhancer 
     case 'openai':
       return new OpenAICompatibleEnhancer(cfg)
     default: {
-      const exhaustive: never = cfg
-      void exhaustive
       return new NoopEnhancer()
     }
   }

@@ -34,8 +34,9 @@ export function getContentFetcher(
     case 'firecrawl':
       return new FirecrawlFetcher(cfg)
     default: {
-      const exhaustive: never = resolved
-      throw new Error(`Unknown fetcher provider: ${exhaustive as string}`)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      void (resolved as any)
+      throw new Error(`Unknown fetcher provider: ${resolved as string}`)
     }
   }
 }
