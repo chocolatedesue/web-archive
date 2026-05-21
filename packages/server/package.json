@@ -9,6 +9,7 @@
     "init:local": "./scripts/init_local.sh"
   },
   "dependencies": {
+    "@mendable/firecrawl-js": "^4.24.2",
     "hono": "^4.4.8"
   },
   "devDependencies": {

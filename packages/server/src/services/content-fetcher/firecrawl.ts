@@ -1,137 +1,60 @@
+import FirecrawlApp from '@mendable/firecrawl-js'
 import type { UrlArchiverConfig } from '@web-archive/shared/types'
 import type { ContentFetcher, FetchOptions, FetchResult } from './types'
 import { FetcherError } from './types'
-
-/**
- * Firecrawl provider — calls the REST `/v2/scrape` endpoint.
- *
- * Supports both the cloud service (https://api.firecrawl.dev) and any
- * self-hosted instance by setting `apiUrl` in the config.
- *
- * Docs: https://docs.firecrawl.dev/api-reference/endpoint/scrape
- *
- * What we request:
- *   formats: ["markdown", "html"]          — markdown for textContent, html for storage
- *   screenshot: true (when captureScreenshot)
- *   onlyMainContent: true                  — strips nav/footer noise
- *   timeout: per-call budget in ms
- */
-
-interface FirecrawlScrapeResponse {
-  success: boolean
-  data?: {
-    markdown?: string
-    html?: string
-    screenshot?: string // base64 data-url "data:image/png;base64,..."
-    metadata?: {
-      title?: string
-      description?: string
-      sourceURL?: string
-      statusCode?: number
-      [key: string]: unknown
-    }
-  }
-  error?: string
-}
 
 type FirecrawlConfig = Extract<UrlArchiverConfig, { provider: 'firecrawl' }>
 
 export class FirecrawlFetcher implements ContentFetcher {
   readonly name = 'firecrawl' as const
 
-  private readonly apiKey: string
-  private readonly baseUrl: string
+  private readonly app: FirecrawlApp
 
   constructor(cfg: UrlArchiverConfig) {
     const fc = cfg as FirecrawlConfig
     if (!fc.apiKey) {
       throw new FetcherError('PROVIDER_FAILURE', 'Firecrawl apiKey is not configured', 'firecrawl')
     }
-    this.apiKey = fc.apiKey
-    this.baseUrl = (fc.apiUrl ?? 'https://api.firecrawl.dev').replace(/\/$/, '')
+    this.app = new FirecrawlApp({
+      apiKey: fc.apiKey,
+      ...(fc.apiUrl ? { apiUrl: fc.apiUrl } : {}),
+    })
   }
 
   async fetch(url: string, options?: FetchOptions): Promise<FetchResult> {
-    const timeoutMs = options?.timeoutMs ?? 25_000
     const wantScreenshot = options?.captureScreenshot ?? false
-
-    const formats: string[] = ['markdown', 'html']
+    const formats: ('markdown' | 'html' | 'screenshot')[] = ['markdown', 'html']
     if (wantScreenshot)
       formats.push('screenshot')
 
-    const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), timeoutMs)
-
-    let res: Response
+    let res: Awaited<ReturnType<typeof this.app.v1.scrapeUrl>>
     try {
-      res = await fetch(`${this.baseUrl}/v1/scrape`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
-        },
-        body: JSON.stringify({
-          url,
-          formats,
-          onlyMainContent: true,
-          timeout: Math.floor(timeoutMs / 1000),
-        }),
-        signal: controller.signal,
-      })
+      res = await this.app.v1.scrapeUrl(url, { formats })
     }
     catch (e: unknown) {
-      clearTimeout(timer)
-      if (e instanceof Error && e.name === 'AbortError') {
-        throw new FetcherError('TIMEOUT', `Firecrawl request timed out after ${timeoutMs}ms`, 'firecrawl')
-      }
       const msg = e instanceof Error ? e.message : String(e)
-      throw new FetcherError('PROVIDER_FAILURE', `Firecrawl fetch error: ${msg}`, 'firecrawl')
-    }
-    clearTimeout(timer)
-
-    if (res.status === 401 || res.status === 403) {
-      throw new FetcherError('PROVIDER_FAILURE', `Firecrawl auth failed (${res.status}) — check your apiKey`, 'firecrawl')
-    }
-    if (res.status >= 400 && res.status < 500) {
-      throw new FetcherError('UPSTREAM_4XX', `Firecrawl returned ${res.status}`, 'firecrawl')
-    }
-    if (res.status >= 500) {
-      throw new FetcherError('UPSTREAM_5XX', `Firecrawl returned ${res.status}`, 'firecrawl')
+      throw new FetcherError('PROVIDER_FAILURE', `Firecrawl error: ${msg}`, 'firecrawl')
     }
 
-    let body: FirecrawlScrapeResponse
-    try {
-      body = await res.json() as FirecrawlScrapeResponse
-    }
-    catch {
-      throw new FetcherError('PROVIDER_FAILURE', 'Firecrawl returned non-JSON response', 'firecrawl')
+    if (!res.success) {
+      throw new FetcherError('PROVIDER_FAILURE', `Firecrawl error: ${(res as any).error ?? 'unknown'}`, 'firecrawl')
     }
 
-    if (!body.success || !body.data) {
-      throw new FetcherError('PROVIDER_FAILURE', `Firecrawl error: ${body.error ?? 'unknown'}`, 'firecrawl')
-    }
+    const markdown = res.markdown ?? ''
+    const html = res.html ?? ''
+    const meta = res.metadata ?? {}
 
-    const { data } = body
-    const markdown = data.markdown ?? ''
-    const html = data.html ?? ''
-    const meta = data.metadata ?? {}
-
-    const title = meta.title ?? new URL(url).hostname
-    const metaDescription = meta.description ?? ''
+    const title = (meta.title as string | undefined) ?? new URL(url).hostname
+    const metaDescription = (meta.description as string | undefined) ?? ''
     const finalUrl = (meta.sourceURL as string | undefined) ?? url
 
-    // Build a self-contained HTML snapshot to store in R2.
-    // Prefer the raw HTML Firecrawl returned; fall back to a markdown wrapper.
     const htmlContent = html || markdownToMinimalHtml(markdown, title, finalUrl)
-
     const textContent = markdown || htmlContent
-
     const bytes = new TextEncoder().encode(htmlContent).byteLength
 
-    // Decode screenshot if present (data:image/png;base64,...)
     let screenshot: ArrayBuffer | undefined
-    if (wantScreenshot && data.screenshot) {
-      screenshot = dataUrlToArrayBuffer(data.screenshot)
+    if (wantScreenshot && res.screenshot) {
+      screenshot = dataUrlToArrayBuffer(res.screenshot)
     }
 
     return {
@@ -144,15 +67,13 @@ export class FirecrawlFetcher implements ContentFetcher {
       meta: {
         fetchedAt: new Date().toISOString(),
         contentType: 'text/html; charset=utf-8',
-        statusCode: meta.statusCode ?? 200,
+        statusCode: (meta.statusCode as number | undefined) ?? 200,
         bytes,
         providerName: 'firecrawl',
       },
     }
   }
 }
-
-// ── helpers ──────────────────────────────────────────────────────────────────
 
 function markdownToMinimalHtml(markdown: string, title: string, sourceUrl: string): string {
   const escaped = escapeHtml(markdown)
