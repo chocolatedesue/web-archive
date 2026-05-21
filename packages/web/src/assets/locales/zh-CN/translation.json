@@ -95,5 +95,19 @@
   "model-name-is-required": "请输入模型名称",
   "please-enter-a-valid-api-url": "请输入有效的 API URL",
   "select-generate-tag-language": "选择生成标签的语言",
-  "select-service-type": "选择服务类型"
+  "select-service-type": "选择服务类型",
+  "url": "网址",
+  "archive-by-url-title": "通过 URL 归档",
+  "archive-by-url-desc": "输入网址进行归档。点击搜索图标可自动从页面获取标题和描述。",
+  "url-invalid": "请输入有效的网址",
+  "url-preview-button": "获取页面信息",
+  "url-preview-success": "页面信息获取成功",
+  "url-preview-failed": "获取页面信息失败",
+  "url-title-placeholder": "留空则使用自动获取的标题",
+  "url-desc-placeholder": "留空则使用自动获取的描述",
+  "url-archive-submit": "归档",
+  "url-archive-success": "页面归档成功",
+  "url-archive-failed": "页面归档失败",
+  "url-archive-duplicate": "已归档过该页面（页面 #{{pageId}}）",
+  "folder-required": "请选择文件夹"
 }

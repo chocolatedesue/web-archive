@@ -114,6 +114,46 @@ function queryAllPageIds(folderId: number): Promise<number[]> {
   })
 }
 
+export type ArchiveByUrlResult =
+  | { status: 'created', pageId: number, title: string, pageDesc: string, fetcherUsed: string }
+  | { status: 'duplicate', pageId: number }
+
+function previewUrl(body: { url: string, fetcherProvider?: string }): Promise<{
+  finalUrl: string
+  title: string
+  metaDescription: string
+  textSample: string
+  hasScreenshot: boolean
+  fetcherUsed: string
+  bytes: number
+  fetchedAt: string
+}> {
+  return fetcher('/pages/preview_url', {
+    method: 'POST',
+    body,
+  })
+}
+
+function archiveByUrl(body: {
+  url: string
+  folderId: number
+  titleOverride?: string
+  pageDescOverride?: string
+  bindTags?: string[]
+  isShowcased?: boolean
+  options?: {
+    fetcherProvider?: string
+    generateSummary?: boolean
+    generateTags?: boolean
+    captureScreenshot?: boolean
+  }
+}): Promise<ArchiveByUrlResult> {
+  return fetcher('/pages/archive_by_url', {
+    method: 'POST',
+    body: body as unknown as Record<string, unknown>,
+  })
+}
+
 export {
   getPageDetail,
   deletePage,
@@ -126,4 +166,6 @@ export {
   getPageScreenshot,
   getRecentSavePage,
   queryAllPageIds,
+  previewUrl,
+  archiveByUrl,
 }

@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
-import { type AITagConfig, ConfigKey } from '@web-archive/shared/types'
+import { type AITagConfig, ConfigKey, type UrlArchiverConfig } from '@web-archive/shared/types'
+import { DEFAULT_URL_ARCHIVER_CONFIG } from '~/constants/url-archiver'
 
 function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex')
@@ -82,6 +83,32 @@ async function setAITagConfig(DB: D1Database, config: AITagConfig): Promise<bool
   return result.success
 }
 
+async function getUrlArchiverConfig(DB: D1Database): Promise<UrlArchiverConfig> {
+  const result = await DB.prepare(`SELECT value FROM stores WHERE key = '${ConfigKey.urlArchiver}'`).all<{ value: string }>()
+  if (!result.success) {
+    throw result.error
+  }
+  if (result.results.length === 0) {
+    return DEFAULT_URL_ARCHIVER_CONFIG
+  }
+  try {
+    return JSON.parse(result.results[0].value) as UrlArchiverConfig
+  }
+  catch {
+    return DEFAULT_URL_ARCHIVER_CONFIG
+  }
+}
+
+async function setUrlArchiverConfig(DB: D1Database, config: UrlArchiverConfig): Promise<boolean> {
+  const insertSql = `INSERT INTO stores (key, value) VALUES ('${ConfigKey.urlArchiver}', ?) ON CONFLICT(key) DO UPDATE SET value = ?`
+  const bindValue = JSON.stringify(config)
+  const result = await DB.prepare(insertSql).bind(bindValue, bindValue).run()
+  if (!result.success) {
+    throw result.error
+  }
+  return result.success
+}
+
 export {
   checkAdminExist,
   verifyAdminToken,
@@ -90,4 +117,6 @@ export {
   setShouldShowRecent,
   getAITagConfig,
   setAITagConfig,
+  getUrlArchiverConfig,
+  setUrlArchiverConfig,
 }
