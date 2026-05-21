@@ -64,7 +64,7 @@ export class FirecrawlFetcher implements ContentFetcher {
 
     let res: Response
     try {
-      res = await fetch(`${this.baseUrl}/v2/scrape`, {
+      res = await fetch(`${this.baseUrl}/v1/scrape`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -10,7 +10,7 @@ bucket_name = "web-archive"
 [[d1_databases]]
 binding = "DB"
 database_name = "web-archive"
-database_id = "ddc7b449-780b-43d9-9920-d7dcfde2407c"
+database_id = "f01f28f7-438b-4f20-8824-1f0d989b868f"
 migrations_dir = './src/sql/migrations'
 
 [ai]
