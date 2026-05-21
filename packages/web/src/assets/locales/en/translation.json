@@ -95,5 +95,19 @@
   "ai-tag-config-saved": "AI Tag config saved",
   "select-service-type": "Select Service Type",
   "select-generate-tag-language": "Select Generate Tag Language",
-  "model": "Model"
+  "model": "Model",
+  "url": "URL",
+  "archive-by-url-title": "Archive by URL",
+  "archive-by-url-desc": "Enter a URL to archive. Click the search icon to auto-fill title and description from the page.",
+  "url-invalid": "Please enter a valid URL",
+  "url-preview-button": "Fetch page info",
+  "url-preview-success": "Page info fetched",
+  "url-preview-failed": "Failed to fetch page info",
+  "url-title-placeholder": "Leave blank to use fetched title",
+  "url-desc-placeholder": "Leave blank to use fetched description",
+  "url-archive-submit": "Archive",
+  "url-archive-success": "Page archived successfully",
+  "url-archive-failed": "Failed to archive page",
+  "url-archive-duplicate": "Already archived (page #{{pageId}})",
+  "folder-required": "Please select a folder"
 }

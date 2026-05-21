@@ -9,6 +9,8 @@ import { getFolderById, restoreFolder } from '~/model/folder'
 import { getFileFromBucket, saveFileToBucket } from '~/utils/file'
 import { updateShowcase } from '~/model/showcase'
 import { updateBindPageByTagName } from '~/model/tag'
+import { archiveByUrl, orchestratorCodeToHttpStatus, previewUrl } from '~/services/archive-orchestrator'
+import { FETCHER_PROVIDER_NAMES } from '~/constants/url-archiver'
 
 const app = new Hono<HonoTypeUserInformation>()
 
@@ -428,6 +430,73 @@ app.get(
     }
 
     return c.body(await screenshot.arrayBuffer())
+  },
+)
+
+app.post(
+  '/preview_url',
+  validator('json', (value, c) => {
+    const schema = z.object({
+      url: z.string({ message: 'url is required' }).url({ message: 'url must be a valid URL' }),
+      fetcherProvider: z.enum(FETCHER_PROVIDER_NAMES).optional(),
+    })
+    const parsed = schema.safeParse(value)
+    if (!parsed.success) {
+      const message = parsed.error.errors[0]?.message ?? 'Invalid request'
+      return c.json(result.error(400, message))
+    }
+    return parsed.data
+  }),
+  async (c) => {
+    const input = c.req.valid('json')
+    try {
+      const data = await previewUrl(c.env, input)
+      return c.json(result.success(data))
+    }
+    catch (e: unknown) {
+      const code = (e as { code?: unknown })?.code
+      const httpStatus = typeof code === 'string' ? orchestratorCodeToHttpStatus(code as any) : 500
+      const message = e instanceof Error ? e.message : 'preview failed'
+      return c.json(result.error(httpStatus, message))
+    }
+  },
+)
+
+app.post(
+  '/archive_by_url',
+  validator('json', (value, c) => {
+    const optionsSchema = z.object({
+      fetcherProvider: z.enum(FETCHER_PROVIDER_NAMES).optional(),
+      generateSummary: z.boolean().optional(),
+      generateTags: z.boolean().optional(),
+      captureScreenshot: z.boolean().optional(),
+    }).optional()
+
+    const schema = z.object({
+      url: z.string({ message: 'url is required' }).url({ message: 'url must be a valid URL' }),
+      folderId: z.number({ message: 'folderId is required' }).int().nonnegative(),
+      titleOverride: z.string().optional(),
+      pageDescOverride: z.string().optional(),
+      bindTags: z.array(z.string()).optional(),
+      isShowcased: z.boolean().optional(),
+      options: optionsSchema,
+    })
+
+    const parsed = schema.safeParse(value)
+    if (!parsed.success) {
+      const message = parsed.error.errors[0]?.message ?? 'Invalid request'
+      return c.json(result.error(400, message))
+    }
+    return parsed.data
+  }),
+  async (c) => {
+    const input = c.req.valid('json')
+    const out = await archiveByUrl(c.env, input)
+    if (out.status === 'error') {
+      const httpStatus = orchestratorCodeToHttpStatus(out.code as any)
+      return c.json(result.error(httpStatus, out.message))
+    }
+    return c.json(result.success(out))
   },
 )
 

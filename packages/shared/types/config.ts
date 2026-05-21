@@ -1,6 +1,7 @@
 enum ConfigKey {
   shouldShowRecent = 'config/should_show_recent',
   aiTag = 'config/ai_tag',
+  urlArchiver = 'config/url_archiver',
 }
 
 type AITagConfig = CloudFlareAITagConfig | OpenAIConfig
